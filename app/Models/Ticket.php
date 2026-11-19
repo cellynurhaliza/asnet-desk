@@ -8,6 +8,7 @@ class Ticket extends Model
 {
     protected $table = 'tickets';
 
+
     protected $fillable = [
         'customer_id',
         'kategori_id',
@@ -18,11 +19,20 @@ class Ticket extends Model
         'reporting_time',
         'ticket_status',
         'priority',
+        'customer_confirmation_required',
+        'customer_confirmation_status',
+        'customer_resolution_note',
+        'customer_confirmed_at',
+        'customer_confirmation_due_at',
     ];
 
     protected $casts = [
         'reporting_time' => 'datetime',
+        'customer_confirmation_required' => 'boolean',
+        'customer_confirmed_at' => 'datetime',
+        'customer_confirmation_due_at' => 'datetime',
     ];
+
 
     public function customer()
     {

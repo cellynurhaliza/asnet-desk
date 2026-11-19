@@ -79,6 +79,11 @@ Route::prefix('customer')
         Route::get('/tickets/{ticket}', [CustomerPortalController::class, 'showTicket'])
             ->name('tickets.show');
 
+        Route::post('/tickets/{ticket}/resolution', [
+            CustomerPortalController::class,
+            'submitResolutionFeedback',
+        ])->name('tickets.resolution');
+
         Route::get('/profile', [CustomerPortalController::class, 'profile'])
             ->name('profile');
 

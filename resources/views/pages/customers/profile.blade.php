@@ -130,6 +130,35 @@
                         @enderror
                     </div>
 
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Current Password
+                        </label>
+
+                        <div class="relative">
+                            <input type="password" id="current_password" value="{{ $customerPassword ?? '' }}" readonly
+                                placeholder="{{ $customerPassword ? '' : 'Password cannot be displayed' }}"
+                                class="h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 pr-12 text-sm text-gray-600 outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+
+                            <button type="button" onclick="togglePassword('current_password', 'current_password_icon')"
+                                class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 hover:text-brand-500">
+                                <svg id="current_password_icon" class="h-5 w-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        @if (!$customerPassword)
+                            <p class="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                                Your existing password cannot be displayed. Please set a new password below.
+                            </p>
+                        @endif
+                    </div>
+
                     <div class="md:col-span-2">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Address
@@ -174,6 +203,7 @@
 
                 <div class="grid grid-cols-1 gap-5 p-6">
 
+                    {{-- New Password --}}
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                             New Password <span class="text-red-500">*</span>
@@ -186,7 +216,6 @@
 
                             <button type="button" onclick="togglePassword('new_password', 'new_password_icon')"
                                 class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 hover:text-brand-500">
-
                                 <svg id="new_password_icon" class="h-5 w-5" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -202,6 +231,7 @@
                         @enderror
                     </div>
 
+                    {{-- Confirm Password --}}
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Confirm New Password <span class="text-red-500">*</span>
@@ -214,7 +244,6 @@
 
                             <button type="button" onclick="togglePassword('confirm_password', 'confirm_password_icon')"
                                 class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 hover:text-brand-500">
-
                                 <svg id="confirm_password_icon" class="h-5 w-5" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

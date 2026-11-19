@@ -153,6 +153,47 @@
                         </p>
                     </div>
 
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-500">
+                            Password
+                        </label>
+
+                        <div class="flex items-center gap-2">
+                            <input type="password" id="customerPassword" value="{{ $customerPassword ?? '' }}" readonly
+                                class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800">
+
+                            <button type="button"
+                                onclick="
+        const input = document.getElementById('customerPassword');
+        const icon = document.getElementById('passwordEyeIcon');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.innerHTML = `
+                <path d='M3 3l18 18'></path>
+                <path d='M10.6 10.6a2 2 0 002.8 2.8'></path>
+                <path d='M9.9 5.2A10.8 10.8 0 0112 5c5 0 9 5 10 7a13.5 13.5 0 01-3 3.8'></path>
+                <path d='M6.2 6.2A13.5 13.5 0 002 12c1 2 5 7 10 7a10.8 10.8 0 004.1-.8'></path>
+            `;
+        } else {
+            input.type = 'password';
+            icon.innerHTML = `
+                <path d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z'></path>
+                <circle cx='12' cy='12' r='3'></circle>
+            `;
+        }
+    "
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700">
+                                <svg id="passwordEyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 

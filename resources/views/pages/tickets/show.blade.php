@@ -211,6 +211,42 @@
                 </div>
             </div>
 
+            @if ($ticket->customer_confirmation_status === 'Not Resolved' && $ticket->customer_resolution_note)
+                <div class="rounded-xl border border-red-200 bg-red-50 p-5 dark:border-red-500/30 dark:bg-red-500/10">
+
+                    <div class="flex items-center gap-2">
+                        <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v4m0 4h.01M10.29 3.86l-7.4 12.82A2 2 0 004.62 19h14.76a2 2 0 001.73-2.32l-7.4-12.82a2 2 0 00-3.46 0Z" />
+                        </svg>
+
+                        <h3 class="font-semibold text-red-700 dark:text-red-400">
+                            Customer Reported Unresolved Issue
+                        </h3>
+                    </div>
+
+                    <p class="mt-3 text-sm text-gray-700 dark:text-gray-300">
+                        Customer:
+                        <strong>{{ $ticket->customer->username ?? '-' }}</strong>
+                    </p>
+
+                    <div class="mt-3 rounded-lg border border-red-200 bg-white p-4 dark:border-red-500/20 dark:bg-gray-900">
+                        <p class="mb-2 text-xs font-semibold uppercase text-gray-500">
+                            Customer Feedback
+                        </p>
+
+                        <p class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">
+                            {{ $ticket->customer_resolution_note }}</p>
+                    </div>
+
+                    <p class="mt-3 text-xs text-red-600 dark:text-red-400">
+                        Ticket status remains Awaiting Customer.
+                        Please review the issue and continue handling the ticket.
+                    </p>
+                </div>
+            @endif
+
+
             <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
 
                 <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-gray-800">
@@ -263,11 +299,13 @@
 
                             <svg class="h-4 w-4 transition group-open:rotate-180" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </summary>
 
-                        <form action="{{ route('tickets.addNote', $ticket->id) }}" method="POST" class="mt-4 space-y-3">
+                        <form action="{{ route('tickets.addNote', $ticket->id) }}" method="POST"
+                            class="mt-4 space-y-3">
                             @csrf
 
                             <textarea name="note" rows="3" required maxlength="2000" placeholder="Write a message or note..."

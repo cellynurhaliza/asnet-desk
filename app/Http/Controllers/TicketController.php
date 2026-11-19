@@ -327,6 +327,24 @@ class TicketController extends Controller
                 $updateData['priority'] = $validated['priority'];
             }
 
+            if (
+                $oldStatus !== 'Awaiting Customer' &&
+                $validated['ticket_status'] === 'Awaiting Customer' &&
+                $ticket->customer_confirmation_required
+            ) {
+                $updateData['customer_confirmation_status'] = 'Pending';
+                $updateData['customer_resolution_note'] = null;
+                $updateData['customer_confirmed_at'] = null;
+                $updateData['customer_confirmation_due_at'] = now()->addHours(24);
+            }
+
+            if (
+                $oldStatus === 'Awaiting Customer' &&
+                $validated['ticket_status'] !== 'Awaiting Customer'
+            ) {
+                $updateData['customer_confirmation_due_at'] = null;
+            }
+
             $ticket->update($updateData);
 
             $ticket->technicians()->sync($newTechnicianIds);

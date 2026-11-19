@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class LoginController extends Controller
 {
@@ -25,6 +28,10 @@ class LoginController extends Controller
 
         $remember = $request->boolean('remember');
 
+        // =====================================
+        // ADMIN LOGIN (Tetap menggunakan Hash)
+        // =====================================
+
         if (Auth::guard('web')->attempt([
             'name' => $validated['login'],
             'password' => $validated['password'],
@@ -37,16 +44,38 @@ class LoginController extends Controller
                 ->with('success', 'Welcome back, Administrator!');
         }
 
-        if (Auth::guard('customer')->attempt([
-            'username' => $validated['login'],
-            'password' => $validated['password'],
-            'status' => 'Active',
-        ], $remember)) {
+        // =====================================
+        // CUSTOMER LOGIN (Menggunakan Crypt)
+        // =====================================
 
-            $request->session()->regenerate();
+        $customer = Customer::where('username', $validated['login'])
+            ->where('status', 'Active')
+            ->first();
 
-            return redirect()->route('customer.dashboard')
-                ->with('success', 'Welcome back!');
+        if ($customer) {
+            try {
+                $decryptedPassword = Crypt::decryptString(
+                    $customer->password
+                );
+
+                if (hash_equals(
+                    $decryptedPassword,
+                    $validated['password']
+                )) {
+                    Auth::guard('customer')->login(
+                        $customer,
+                        $remember
+                    );
+
+                    $request->session()->regenerate();
+
+                    return redirect()->route('customer.dashboard')
+                        ->with('success', 'Welcome back!');
+                }
+            } catch (DecryptException $e) {
+                // Password bukan format Crypt atau gagal didekripsi.
+                // Login ditolak.
+            }
         }
 
         return back()

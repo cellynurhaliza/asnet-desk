@@ -8,8 +8,12 @@ use App\Models\TicketActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
+use App\Models\User;
+use App\Notifications\CustomerReportedUnresolved;
+use Illuminate\Support\Facades\Notification;
 
 class CustomerPortalController extends Controller
 {
@@ -160,6 +164,11 @@ class CustomerPortalController extends Controller
                 'reporting_time' => now(),
                 'ticket_status' => 'New',
                 'priority' => $validated['priority'],
+
+                'customer_confirmation_required' => true,
+                'customer_confirmation_status' => null,
+                'customer_resolution_note' => null,
+                'customer_confirmed_at' => null,
             ]);
 
             TicketActivity::create([
@@ -192,14 +201,22 @@ class CustomerPortalController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
-        return view('pages.customers.profile', compact('customer'));
+        try {
+            $customerPassword = Crypt::decryptString($customer->password);
+        } catch (DecryptException $e) {
+            $customerPassword = null;
+        }
+
+        return view('pages.customers.profile', compact(
+            'customer',
+            'customerPassword'
+        ));
     }
     public function updateProfile(Request $request)
     {
         $customer = Auth::guard('customer')->user();
 
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:150'],
             'pic' => ['nullable', 'string', 'max:150'],
             'email' => [
                 'required',
@@ -211,7 +228,15 @@ class CustomerPortalController extends Controller
             'address' => ['nullable', 'string'],
         ]);
 
-        $customer->update($validated);
+        DB::table('customer')
+            ->where('id', $customer->id)
+            ->update([
+                'pic' => $validated['pic'] ?? null,
+                'email' => $validated['email'],
+                'phone_number' => $validated['phone_number'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'updated_at' => now(),
+            ]);
 
         return redirect()
             ->route('customer.profile')
@@ -226,10 +251,107 @@ class CustomerPortalController extends Controller
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        $customer->update([
-            'password' => Hash::make($validated['password']),
+        $encryptedPassword = Crypt::encryptString(
+            $validated['password']
+        );
+
+        DB::table('customer')
+            ->where('id', $customer->id)
+            ->update([
+                'password' => $encryptedPassword,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()
+            ->route('customer.profile')
+            ->with('success', 'Password updated successfully.');
+    }
+
+
+    public function submitResolutionFeedback(Request $request, $ticketId)
+    {
+        $validated = $request->validate([
+            'answer' => ['required', 'in:yes,no'],
+            'customer_resolution_note' => [
+                'required_if:answer,no',
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+        ], [
+            'answer.required' => 'Please select an answer.',
+            'customer_resolution_note.required_if' =>
+            'Please explain what issue remains unresolved.',
         ]);
 
-        return back()->with('success', 'Password updated successfully.');
+        $customer = Auth::guard('customer')->user();
+
+        DB::transaction(function () use (
+            $ticketId,
+            $customer,
+            $validated
+        ) {
+            $ticket = Ticket::where('customer_id', $customer->id)
+                ->where('customer_confirmation_required', true)
+                ->where('ticket_status', 'Awaiting Customer')
+                ->where('customer_confirmation_status', 'Pending')
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($validated['answer'] === 'yes') {
+                $ticket->update([
+                    'ticket_status' => 'Completed',
+                    'customer_confirmation_status' => 'Confirmed',
+                    'customer_resolution_note' => null,
+                    'customer_confirmed_at' => now(),
+                    'customer_confirmation_due_at' => null,
+                ]);
+
+                TicketActivity::create([
+                    'ticket_id' => $ticket->id,
+                    'activity_type' => 'Customer Confirmed Resolution',
+                    'description' => 'Customer confirmed that the issue has been resolved.',
+                    'performed_by' => $customer->username,
+                ]);
+            } else {
+                $note = $validated['customer_resolution_note'];
+
+                $ticket->update([
+                    'ticket_status' => 'Awaiting Customer',
+                    'customer_confirmation_status' => 'Not Resolved',
+                    'customer_resolution_note' => $note,
+                    'customer_confirmed_at' => now(),
+                    'customer_confirmation_due_at' => null,
+                ]);
+
+                TicketActivity::create([
+                    'ticket_id' => $ticket->id,
+                    'activity_type' => 'Customer Reported Unresolved',
+                    'description' => "Customer reported that the issue is not resolved.\n\nCustomer Note:\n{$note}",
+                    'performed_by' => $customer->username,
+                ]);
+
+                $admins = User::where('role', 'admin')->get();
+
+                Notification::send(
+                    $admins,
+                    new CustomerReportedUnresolved(
+                        $ticket->id,
+                        $ticket->name,
+                        $customer->username,
+                        $note
+                    )
+                );
+            }
+        });
+
+        return redirect()
+            ->route('customer.tickets.show', $ticketId)
+            ->with(
+                'success',
+                $validated['answer'] === 'yes'
+                    ? 'Thank you! Your ticket has been confirmed as completed.'
+                    : 'Your feedback has been submitted. The administrator will review your issue.'
+            );
     }
 }

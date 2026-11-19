@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -98,7 +98,7 @@ class CustomerController extends Controller
             'connection_type' => ['nullable', Rule::in($this->connectionTypes)],
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = Crypt::encryptString($validated['password']);
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo')
@@ -172,7 +172,7 @@ class CustomerController extends Controller
         if (empty($validated['password'])) {
             unset($validated['password']);
         } else {
-            $validated['password'] = Hash::make(
+            $validated['password'] = Crypt::encryptString(
                 $validated['password']
             );
         }
@@ -208,6 +208,15 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        return view('pages.customers.show', compact('customer'));
+        try {
+            $customerPassword = Crypt::decryptString($customer->password);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            $customerPassword = null;
+        }
+
+        return view('pages.customers.show', compact(
+            'customer',
+            'customerPassword'
+        ));
     }
 }
