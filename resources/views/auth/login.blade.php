@@ -8,6 +8,8 @@
 
     <title>Sign In | Asnet Desk</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    
     <script>
         if (localStorage.getItem('asnet-theme') === 'dark') {
             document.documentElement.classList.add('dark');
