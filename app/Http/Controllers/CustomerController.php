@@ -164,9 +164,26 @@ class CustomerController extends Controller
             'port_pon' => 'nullable|string|max:100',
             'cid' => 'nullable|string|max:100',
             'user_location' => 'nullable|string|max:255',
-            'bandwidth' => 'nullable|string|max:100',
-            'access_method' => ['nullable', Rule::in($this->accessMethods)],
-            'connection_type' => ['nullable', Rule::in($this->connectionTypes)],
+
+            'bandwidth_value' => 'nullable|numeric|min:0',
+            'bandwidth_unit' => [
+                'required_with:bandwidth_value',
+                Rule::in(['Kbps', 'Mbps', 'Gbps']),
+            ],
+
+            'media' => [
+                'nullable',
+                Rule::in(['Modem', 'Core to Core']),
+            ],
+
+            'access_method' => [
+                'nullable',
+                Rule::in($this->accessMethods),
+            ],
+            'connection_type' => [
+                'nullable',
+                Rule::in($this->connectionTypes),
+            ],
         ]);
 
         if (empty($validated['password'])) {
@@ -176,6 +193,15 @@ class CustomerController extends Controller
                 $validated['password']
             );
         }
+
+        $validated['bandwidth'] = !empty($validated['bandwidth_value'])
+            ? $validated['bandwidth_value'] . ' ' . $validated['bandwidth_unit']
+            : null;
+
+        unset(
+            $validated['bandwidth_value'],
+            $validated['bandwidth_unit']
+        );
 
         if ($request->hasFile('photo')) {
             if ($customer->photo) {
@@ -195,8 +221,10 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
-        if ($customer->photo) {
-            Storage::disk('public')->delete($customer->photo);
+        if ($customer->tickets()->exists()) {
+            return redirect()
+                ->back()
+                ->with('error', 'This customer cannot be deleted because they have existing tickets. Please deactivate the customer instead.');
         }
 
         $customer->delete();

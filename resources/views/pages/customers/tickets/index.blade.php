@@ -40,8 +40,7 @@
             <a href="{{ route('customer.tickets.create') }}"
                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4v16m8-8H4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 Create New Ticket
             </a>
@@ -53,8 +52,8 @@
                 class="flex flex-col gap-3 border-b border-gray-200 p-4 dark:border-gray-800 sm:flex-row sm:items-center">
 
                 <div class="relative flex-1">
-                    <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="m21 21-4.35-4.35M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
                     </svg>
@@ -159,7 +158,8 @@
 
                                 <td class="px-5 py-4">
                                     @forelse ($ticket->technicians as $technician)
-                                        <span class="mb-1 inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                        <span
+                                            class="mb-1 inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                                             {{ $technician->technician_name }}
                                         </span>
                                     @empty
@@ -174,21 +174,28 @@
                                         $priority = $ticket->priority ?? 'Medium';
                                     @endphp
 
-                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $priorityColors[$priority] ?? $priorityColors['Medium'] }}">
+                                    <span
+                                        class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $priorityColors[$priority] ?? $priorityColors['Medium'] }}">
                                         {{ $priority }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4">
-                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$ticket->ticket_status] ?? 'bg-gray-100 text-gray-600' }}">
+                                    <span
+                                        class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$ticket->ticket_status] ?? 'bg-gray-100 text-gray-600' }}">
                                         {{ $ticket->ticket_status }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
-                                    <a href="{{ route('customer.tickets.show', $ticket->id) }}"
-                                        class="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                                        View Detail
+                                    <a href="{{ route('customer.tickets.show', $ticket->id) }}" title="View Ticket"
+                                        class="group mx-auto flex h-9 w-9 items-center justify-center rounded-lg border border-purple-100 bg-purple-50 text-purple-600 transition hover:border-purple-200 hover:bg-purple-600 hover:text-white dark:border-purple-500/20 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500 dark:hover:text-white">
+                                        <svg class="h-4 w-4 transition-transform group-hover:scale-110" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
+                                            <circle cx="12" cy="12" r="2.5" stroke-width="1.8" />
+                                        </svg>
                                     </a>
                                 </td>
 
@@ -197,9 +204,10 @@
                             <tr>
                                 <td colspan="7" class="px-5 py-16 text-center">
 
-                                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                        <svg class="h-7 w-7 text-gray-400" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
+                                    <div
+                                        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                                        <svg class="h-7 w-7 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z" />
                                         </svg>
@@ -227,7 +235,8 @@
             </div>
 
             @if ($tickets->hasPages() || $tickets->total() > 0)
-                <div class="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                    class="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
 
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         Showing {{ $tickets->firstItem() ?? 0 }} to {{ $tickets->lastItem() ?? 0 }}

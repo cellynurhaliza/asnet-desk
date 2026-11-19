@@ -49,4 +49,9 @@ class Customer extends Authenticatable
             ])->saveQuietly();
         });
     }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'customer_id');
+    }
 }
