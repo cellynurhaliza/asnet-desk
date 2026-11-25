@@ -30,9 +30,9 @@
     </div>
     <div>
         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email <span class="text-error-500">*</span>
+            Email
         </label>
-        <input type="email" name="email" value="{{ old('email', $customer->email ?? '') }}" required
+        <input type="email" name="email" value="{{ old('email', $customer->email ?? '') }}"
             placeholder="example@email.com"
             class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
 
@@ -56,78 +56,29 @@
     </div>
 
     <div>
-        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Password
-            @if (!isset($customer))
-                <span class="text-red-500">*</span>
-            @endif
         </label>
 
         <div class="relative">
-            <input type="password" name="password" id="customerPassword" {{ isset($customer) ? '' : 'required' }}
-                placeholder="{{ isset($customer) ? 'Leave blank to keep current password' : 'Minimum 6 characters' }}"
-                class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 pr-12 text-sm text-gray-700 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+            <input type="text" value="{{ old('username', $customer->username ?? '') }}" readonly
+                placeholder="The password automatically follows the name"
+                class="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
 
-            <button type="button" id="togglePasswordButton" onclick="toggleCustomerPassword()"
-                class="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-gray-400 transition hover:text-brand-500"
-                aria-label="Show password" aria-pressed="false">
-
-                <svg id="customerPasswordIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
-
-                    <circle cx="12" cy="12" r="3" />
-                </svg>
-            </button>
+            <span class="absolute inset-y-0 right-0 flex items-center px-4 text-xs text-gray-400">
+                Auto
+            </span>
         </div>
 
-        @error('password')
-            <p class="mt-1 text-xs text-error-500">{{ $message }}</p>
-        @enderror
-        <script>
-            function toggleCustomerPassword() {
-                const input = document.getElementById('customerPassword');
-                const icon = document.getElementById('customerPasswordIcon');
-                const button = document.getElementById('togglePasswordButton');
-
-                if (!input || !icon || !button) return;
-
-                const isPassword = input.type === 'password';
-
-                input.type = isPassword ? 'text' : 'password';
-
-                if (isPassword) {
-                    icon.innerHTML = `
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3 3l18 18" />
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M10.6 10.6a2 2 0 002.8 2.8" />
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9.9 5.2A10.5 10.5 0 0112 5c6 0 9.5 7 9.5 7s-1.2 2.4-3.1 3.9M6.2 6.2C3.8 8 2.5 12 2.5 12s3.5 7 9.5 7c1.1 0 2.1-.2 3-.6" />
-            `;
-
-                    button.setAttribute('aria-label', 'Hide password');
-                    button.setAttribute('aria-pressed', 'true');
-                } else {
-                    icon.innerHTML = `
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
-                <circle cx="12" cy="12" r="3" />
-            `;
-
-                    button.setAttribute('aria-label', 'Show password');
-                    button.setAttribute('aria-pressed', 'false');
-                }
-            }
-        </script>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            The initial password is automatically set to the customer's name.
+        </p>
     </div>
     <div>
         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Service Type <span class="text-error-500">*</span>
+            Service Type
         </label>
-        <select name="service_type" required
+        <select name="service_type"
             class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
 
             <option value="">-- Select service type --</option>
@@ -217,8 +168,8 @@
         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             User Location
         </label>
-        <input type="text" name="user_location"
-            value="{{ old('user_location', $customer->user_location ?? '') }}" placeholder="Enter user location"
+        <input type="text" name="user_location" value="{{ old('user_location', $customer->user_location ?? '') }}"
+            placeholder="Enter user location"
             class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
 
         @error('user_location')

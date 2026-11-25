@@ -71,12 +71,11 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:customer,username',
             'pic' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:customer,email',
+            'email' => 'nullable|email|max:255|unique:customer,email',
             'phone_number' => 'nullable|string|max:30',
-            'password' => 'required|string|min:6',
             'address' => 'nullable|string',
             'service_type' => [
-                'required',
+                'nullable',
                 Rule::in($this->serviceTypes),
             ],
             'coordinates' => 'nullable|string|max:255',
@@ -92,13 +91,25 @@ class CustomerController extends Controller
             'cid' => 'nullable|string|max:100',
             'user_location' => 'nullable|string|max:255',
             'bandwidth_value' => 'nullable|numeric|min:0',
-            'bandwidth_unit' => ['required_with:bandwidth_value', Rule::in(['Kbps', 'Mbps', 'Gbps'])],
-            'media' => ['nullable', Rule::in(['Modem', 'Core to Core'])],
-            'access_method' => ['nullable', Rule::in($this->accessMethods)],
-            'connection_type' => ['nullable', Rule::in($this->connectionTypes)],
+            'bandwidth_unit' => [
+                'required_with:bandwidth_value',
+                Rule::in(['Kbps', 'Mbps', 'Gbps']),
+            ],
+            'media' => [
+                'nullable',
+                Rule::in(['Modem', 'Core to Core']),
+            ],
+            'access_method' => [
+                'nullable',
+                Rule::in($this->accessMethods),
+            ],
+            'connection_type' => [
+                'nullable',
+                Rule::in($this->connectionTypes),
+            ],
         ]);
 
-        $validated['password'] = Crypt::encryptString($validated['password']);
+        $validated['password'] = Crypt::encryptString($validated['username']);
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo')
@@ -140,7 +151,7 @@ class CustomerController extends Controller
             ],
             'pic' => 'required|string|max:255',
             'email' => [
-                'required',
+                'nullable',
                 'email',
                 'max:255',
                 Rule::unique('customer', 'email')->ignore($customer->id),
@@ -149,7 +160,7 @@ class CustomerController extends Controller
             'password' => 'nullable|string|min:6',
             'address' => 'nullable|string',
             'service_type' => [
-                'required',
+                'nullable',
                 Rule::in($this->serviceTypes),
             ],
             'coordinates' => 'nullable|string|max:255',

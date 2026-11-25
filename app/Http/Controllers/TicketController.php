@@ -10,13 +10,12 @@ use App\Models\TicketActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use App\Exports\TicketsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TicketPhoto;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -201,19 +200,12 @@ class TicketController extends Controller
                     $counter++;
                 }
 
-                $email = $username . '@gmail.com';
-                $emailCounter = 1;
-
-                while (Customer::where('email', $email)->exists()) {
-                    $email = $username . $emailCounter . '@gmail.com';
-                    $emailCounter++;
-                }
-
                 $customer = Customer::create([
                     'username' => $username,
                     'pic' => $username,
-                    'email' => $email,
-                    'password' => Hash::make(Str::random(32)),
+                    'email' => null,
+                    'password' => Crypt::encryptString($username),
+                    'status' => 'Active',
                 ]);
 
                 $customerId = $customer->id;
