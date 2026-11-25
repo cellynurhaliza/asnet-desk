@@ -225,7 +225,7 @@
                                         </p>
 
                                         <p class="mt-1 text-xs text-gray-400">
-                                            #TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}
+                                            #{{ $ticket->ticket_code }}
                                         </p>
 
                                         <p class="mt-2 text-xs text-gray-400">

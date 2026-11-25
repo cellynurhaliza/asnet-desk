@@ -89,7 +89,7 @@ class DashboardController extends Controller
                 $query->where('priority', $selectedPriority);
             })
             ->latest()
-            ->paginate(3)
+            ->paginate(5)
             ->withQueryString();
 
         return view('pages.dashboard', compact(

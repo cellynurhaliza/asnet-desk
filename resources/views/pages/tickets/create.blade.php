@@ -235,57 +235,49 @@
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 
                             <div>
-                                <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Ticket Priority <span class="text-error-500">*</span>
+                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Ticket Priority
                                 </label>
 
-                                @php
-                                    $priorities = [
-                                        'Urgent' => [
-                                            'style' =>
-                                                'border-red-200 text-red-600 hover:bg-red-50 dark:border-red-500/20 dark:text-red-400 dark:hover:border-red-500/40 dark:hover:bg-red-500/5',
-                                            'selected' =>
-                                                'border-red-500 bg-red-50 text-red-700 ring-1 ring-red-500 dark:border-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-400/50',
-                                        ],
-                                        'High' => [
-                                            'style' =>
-                                                'border-orange-200 text-orange-600 hover:bg-orange-50 dark:border-orange-500/20 dark:text-orange-400 dark:hover:border-orange-500/40 dark:hover:bg-orange-500/5',
-                                            'selected' =>
-                                                'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 dark:border-orange-400 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-400/50',
-                                        ],
-                                        'Medium' => [
-                                            'style' =>
-                                                'border-yellow-200 text-yellow-600 hover:bg-yellow-50 dark:border-yellow-500/20 dark:text-yellow-400 dark:hover:border-yellow-500/40 dark:hover:bg-yellow-500/5',
-                                            'selected' =>
-                                                'border-yellow-500 bg-yellow-50 text-yellow-700 ring-1 ring-yellow-500 dark:border-yellow-400 dark:bg-yellow-500/10 dark:text-yellow-300 dark:ring-yellow-400/50',
-                                        ],
-                                        'Low' => [
-                                            'style' =>
-                                                'border-green-200 text-green-600 hover:bg-green-50 dark:border-green-500/20 dark:text-green-400 dark:hover:border-green-500/40 dark:hover:bg-green-500/5',
-                                            'selected' =>
-                                                'border-green-500 bg-green-50 text-green-700 ring-1 ring-green-500 dark:border-green-400 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-400/50',
-                                        ],
-                                    ];
-                                @endphp
-
                                 <div class="grid grid-cols-2 gap-3">
-                                    @foreach ($priorities as $priority => $styles)
-                                        <label
-                                            class="priority-option flex cursor-pointer items-center justify-center rounded-lg border bg-white px-4 py-3 text-sm font-semibold transition-all duration-200
-                dark:bg-gray-800/50
-                {{ old('priority') === $priority ? $styles['selected'] : $styles['style'] }}">
-
+                                    @foreach ($priorities as $priority => $style)
+                                        <label class="cursor-pointer">
                                             <input type="radio" name="priority" value="{{ $priority }}"
-                                                class="sr-only" @checked(old('priority') === $priority)>
+                                                class="peer sr-only" @checked(old('priority', 'Medium') === $priority) required>
 
-                                            {{ $priority }}
+                                            <div
+                                                class="rounded-xl border border-gray-200 bg-white p-4 transition
+                                        hover:border-gray-300
+                                        peer-checked:border-brand-500 peer-checked:bg-brand-50
+                                        dark:border-gray-800 dark:bg-gray-950 dark:peer-checked:border-brand-500 dark:peer-checked:bg-brand-500/10">
+
+                                                <div class="flex items-center gap-2">
+                                                    <span class="h-2.5 w-2.5 rounded-full {{ $style['dot'] }}"></span>
+
+                                                    <span class="text-sm font-semibold text-gray-800 dark:text-white">
+                                                        {{ $priority }}
+                                                    </span>
+                                                </div>
+
+                                                <p class="mt-2 text-xs text-gray-400">
+                                                    {{ $style['description'] }}
+                                                </p>
+
+                                                <div
+                                                    class="mt-3 hidden items-center gap-1 text-xs font-medium text-brand-600 peer-checked:flex dark:text-brand-400">
+                                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Selected
+                                                </div>
+                                            </div>
                                         </label>
                                     @endforeach
                                 </div>
 
-                                @error('priority')
-                                    <p class="mt-2 text-xs text-error-500">{{ $message }}</p>
-                                @enderror
+                                <input type="hidden" name="priority" id="priorityHidden" value="High" disabled>
                             </div>
 
                             <div>
@@ -340,8 +332,7 @@
                                     <p class="mt-1 text-xs text-error-500">{{ $message }}</p>
                                 @enderror
                             </div>
-
-                            <div class="md:col-span-2">
+                            <div class="min-w-0 flex-1">
                                 <label class="flex cursor-pointer items-center gap-2">
                                     <input type="checkbox" id="manualTime" name="manual_time" value="1"
                                         @checked(old('manual_time'))
@@ -352,8 +343,7 @@
                                     </span>
                                 </label>
 
-                                <div id="reportTimeWrapper"
-                                    class="{{ old('manual_time') ? '' : 'hidden' }} mt-3 max-w-md">
+                                <div id="reportTimeWrapper" class="{{ old('manual_time') ? '' : 'hidden' }} mt-3">
 
                                     <label class="mb-2 block text-sm text-gray-500 dark:text-gray-400">
                                         Report Date & Time (WIB)
@@ -364,6 +354,35 @@
                                 </div>
                             </div>
 
+                            <div class="min-w-0 flex-1">
+                                <label class="flex cursor-pointer items-center gap-2">
+                                    <input type="hidden" name="is_issue_start_now" value="0">
+
+                                    <input type="checkbox" id="issueStartNow" name="is_issue_start_now" value="1"
+                                        @checked(old('is_issue_start_now', '1') == '1')
+                                        class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Issue Started When Ticket Was Created
+                                    </span>
+                                </label>
+
+                                <div id="incidentStartWrapper"
+                                    class="{{ old('is_issue_start_now', '1') == '1' ? 'hidden' : '' }} mt-3">
+
+                                    <label class="mb-2 block text-sm text-gray-500 dark:text-gray-400">
+                                        Issue Start Date & Time (WIB)
+                                    </label>
+
+                                    <input type="datetime-local" id="incidentStartedAt" name="incident_started_at"
+                                        value="{{ old('incident_started_at') }}" max="{{ now()->format('Y-m-d\TH:i') }}"
+                                        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+
+                                    @error('incident_started_at')
+                                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -592,6 +611,43 @@
                 option.classList.add(...selectedStyles[this.value]);
             });
         });
+
+
+        const issueStartNow = document.getElementById('issueStartNow');
+        const incidentStartWrapper = document.getElementById('incidentStartWrapper');
+        const incidentStartedAt = document.getElementById('incidentStartedAt');
+
+        const priorityRadios = document.querySelectorAll('.priority-radio');
+        const priorityHidden = document.getElementById('priorityHidden');
+
+        function toggleIncidentStart() {
+            if (issueStartNow.checked) {
+                incidentStartWrapper.classList.add('hidden');
+                incidentStartedAt.removeAttribute('required');
+
+                priorityRadios.forEach(radio => {
+                    radio.disabled = false;
+                });
+
+                priorityHidden.disabled = true;
+
+            } else {
+                incidentStartWrapper.classList.remove('hidden');
+                incidentStartedAt.setAttribute('required', 'required');
+
+                priorityRadios.forEach(radio => {
+                    radio.checked = radio.value === 'High';
+                    radio.disabled = true;
+                });
+
+                priorityHidden.value = 'High';
+                priorityHidden.disabled = false;
+            }
+        }
+
+        issueStartNow.addEventListener('change', toggleIncidentStart);
+
+        toggleIncidentStart();
     </script>
 
 @endsection

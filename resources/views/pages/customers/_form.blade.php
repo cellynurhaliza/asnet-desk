@@ -278,30 +278,6 @@
         @enderror
     </div>
 
-
-    <div>
-        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Media
-        </label>
-
-        <select name="media"
-            class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-
-            <option value="">-- Select media --</option>
-
-            @foreach (['Modem', 'Core to Core'] as $media)
-                <option value="{{ $media }}" @selected(old('media', $customer->media ?? '') === $media)>
-                    {{ $media }}
-                </option>
-            @endforeach
-
-        </select>
-
-        @error('media')
-            <p class="mt-1 text-xs text-error-500">{{ $message }}</p>
-        @enderror
-    </div>
-
     <div>
         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Connection Type

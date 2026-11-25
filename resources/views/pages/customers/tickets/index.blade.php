@@ -16,10 +16,10 @@
         ];
 
         $priorityColors = [
-            'Urgent' => 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
-            'High' => 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400',
-            'Medium' => 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
-            'Low' => 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+            'Urgent' => 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-500/10 dark:text-rose-400 dark:ring-rose-500/20',
+            'High' => 'bg-orange-50 text-orange-700 ring-orange-600/10 dark:bg-orange-500/10 dark:text-orange-400 dark:ring-orange-500/20',
+            'Medium' => 'bg-amber-50 text-amber-700 ring-amber-600/10 dark:bg-amber-500/10 dark:text-amber-400 dark:ring-amber-500/20',
+            'Low' => 'bg-emerald-50 text-emerald-700 ring-emerald-600/10 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20',
         ];
 
         $priorities = ['Urgent', 'High', 'Medium', 'Low'];
@@ -99,35 +99,35 @@
             </form>
 
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[1100px] text-left">
+                <table class="w-full min-w-[1050px] text-left">
 
-                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                    <thead class="bg-gray-50/80 dark:bg-gray-800/40">
                         <tr>
-                            <th class="px-5 py-4 text-xs font-semibold uppercase text-gray-500">
+                            <th class="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 Ticket
                             </th>
 
-                            <th class="px-5 py-4 text-xs font-semibold uppercase text-gray-500">
+                            <th class="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 Category
                             </th>
 
-                            <th class="px-5 py-4 text-xs font-semibold uppercase text-gray-500">
-                                Reporting Time
+                            <th class="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                Technicians
                             </th>
 
-                            <th class="px-5 py-4 text-xs font-semibold uppercase text-gray-500">
-                                Assigned Technicians
+                            <th class="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                Date
                             </th>
 
-                            <th class="px-5 py-4 text-xs font-semibold uppercase text-gray-500">
+                            <th class="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 Priority
                             </th>
 
-                            <th class="px-5 py-4 text-xs font-semibold uppercase text-gray-500">
+                            <th class="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 Status
                             </th>
 
-                            <th class="px-5 py-4 text-center text-xs font-semibold uppercase text-gray-500">
+                            <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 Action
                             </th>
                         </tr>
@@ -136,37 +136,61 @@
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
 
                         @forelse ($tickets as $ticket)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                            <tr class="transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30">
 
                                 <td class="px-5 py-4">
-                                    <div class="font-medium text-gray-800 dark:text-white">
-                                        {{ $ticket->name }}
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                    d="M8 7h8M8 11h8m-8 4h5M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+                                            </svg>
+                                        </div>
+
+                                        <div class="min-w-0">
+                                            <p class="max-w-xs truncate text-sm font-semibold text-gray-800 dark:text-white">
+                                                {{ $ticket->name }}
+                                            </p>
+
+                                            <p class="mt-1 text-xs font-medium text-gray-400">
+                                                #{{ $ticket->ticket_code }}
+                                            </p>
+
+                                            <p class="mt-1 max-w-[200px] truncate text-xs text-gray-500 dark:text-gray-400">
+                                                {{ $ticket->complaint }}
+                                            </p>
+                                        </div>
                                     </div>
-
-                                    <div class="mt-1 text-xs text-gray-500">
-                                        #{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}
-                                    </div>
-                                </td>
-
-                                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-                                    {{ $ticket->category?->category_name ?? '-' }}
-                                </td>
-
-                                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-                                    {{ $ticket->reporting_time?->format('d M Y, H:i') ?? '-' }}
                                 </td>
 
                                 <td class="px-5 py-4">
-                                    @forelse ($ticket->technicians as $technician)
-                                        <span
-                                            class="mb-1 inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                            {{ $technician->technician_name }}
-                                        </span>
-                                    @empty
-                                        <span class="text-sm text-gray-400">
-                                            Not Assigned
-                                        </span>
-                                    @endforelse
+                                    <span class="text-sm text-gray-600 dark:text-gray-300">
+                                        {{ $ticket->category?->category_name ?? '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <div class="flex max-w-[190px] flex-wrap gap-1.5">
+                                        @forelse ($ticket->technicians as $technician)
+                                            <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                                {{ $technician->technician_name }}
+                                            </span>
+                                        @empty
+                                            <span class="text-xs italic text-gray-400">
+                                                Not Assigned
+                                            </span>
+                                        @endforelse
+                                    </div>
+                                </td>
+
+                                <td class="px-5 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                                        <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
+                                        </svg>
+                                        {{ $ticket->reporting_time?->format('d M Y') ?? '-' }}
+                                    </div>
                                 </td>
 
                                 <td class="px-5 py-4">
@@ -174,58 +198,68 @@
                                         $priority = $ticket->priority ?? 'Medium';
                                     @endphp
 
-                                    <span
-                                        class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $priorityColors[$priority] ?? $priorityColors['Medium'] }}">
+                                    <span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset {{ $priorityColors[$priority] ?? $priorityColors['Medium'] }}">
+                                        <span class="h-1.5 w-1.5 rounded-full
+                                            {{ $priority === 'Urgent' ? 'bg-rose-500' : '' }}
+                                            {{ $priority === 'High' ? 'bg-orange-500' : '' }}
+                                            {{ $priority === 'Medium' ? 'bg-amber-500' : '' }}
+                                            {{ $priority === 'Low' ? 'bg-emerald-500' : '' }}">
+                                        </span>
                                         {{ $priority }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4">
-                                    <span
-                                        class="inline-flex rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$ticket->ticket_status] ?? 'bg-gray-100 text-gray-600' }}">
-                                        {{ $ticket->ticket_status }}
+                                    @php
+                                        $status = $ticket->ticket_status ?? 'Unknown';
+                                        $statusClass = $statusColors[$status] ?? 'bg-gray-100 text-gray-600 ring-gray-500/10 dark:bg-gray-800 dark:text-gray-400';
+                                    @endphp
+
+                                    <span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset {{ $statusClass }}">
+                                        {{ $status }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
-                                    <a href="{{ route('customer.tickets.show', $ticket->id) }}" title="View Ticket"
+                                    <a href="{{ route('customer.tickets.show', $ticket->id) }}"
+                                        title="View Ticket"
                                         class="group mx-auto flex h-9 w-9 items-center justify-center rounded-lg border border-purple-100 bg-purple-50 text-purple-600 transition hover:border-purple-200 hover:bg-purple-600 hover:text-white dark:border-purple-500/20 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500 dark:hover:text-white">
-                                        <svg class="h-4 w-4 transition-transform group-hover:scale-110" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="h-4 w-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                                 d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
                                             <circle cx="12" cy="12" r="2.5" stroke-width="1.8" />
                                         </svg>
                                     </a>
                                 </td>
-
+                                
                             </tr>
+
                         @empty
                             <tr>
-                                <td colspan="7" class="px-5 py-16 text-center">
-
-                                    <div
-                                        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                        <svg class="h-7 w-7 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z" />
+                                <td colspan="7" class="px-5 py-14 text-center">
+                                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800">
+                                        <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
                                         </svg>
                                     </div>
 
-                                    <h3 class="mt-4 font-semibold text-gray-800 dark:text-white">
-                                        No Tickets Found
-                                    </h3>
+                                    <h4 class="mt-4 text-sm font-semibold text-gray-800 dark:text-white">
+                                        No Tickets Yet
+                                    </h4>
 
-                                    <p class="mt-1 text-sm text-gray-500">
-                                        You haven't created any tickets yet, or no results match your search.
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        You haven't submitted any support tickets.
                                     </p>
 
                                     <a href="{{ route('customer.tickets.create') }}"
-                                        class="mt-4 inline-flex rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                                        class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 5v14m-7-7h14" />
+                                        </svg>
                                         Create Your First Ticket
                                     </a>
-
                                 </td>
                             </tr>
                         @endforelse

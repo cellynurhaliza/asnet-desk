@@ -17,4 +17,9 @@ class TicketActivity extends Model
     {
         return $this->belongsTo(Ticket::class);
     }
+
+    public function photos()
+    {
+        return $this->hasMany(TicketPhoto::class, 'activity_id');
+    }
 }

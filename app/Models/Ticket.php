@@ -8,8 +8,8 @@ class Ticket extends Model
 {
     protected $table = 'tickets';
 
-
     protected $fillable = [
+        'ticket_code',
         'customer_id',
         'kategori_id',
         'technician_id',
@@ -24,6 +24,11 @@ class Ticket extends Model
         'customer_resolution_note',
         'customer_confirmed_at',
         'customer_confirmation_due_at',
+        'resolved_at',
+        'incident_started_at',
+        'photo_path',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
@@ -31,6 +36,8 @@ class Ticket extends Model
         'customer_confirmation_required' => 'boolean',
         'customer_confirmed_at' => 'datetime',
         'customer_confirmation_due_at' => 'datetime',
+        'resolved_at' => 'datetime',
+        'incident_started_at' => 'datetime',
     ];
 
 
@@ -63,5 +70,9 @@ class Ticket extends Model
     {
         return $this->hasMany(TicketActivity::class)
             ->latest();
+    }
+    public function photos()
+    {
+        return $this->hasMany(TicketPhoto::class);
     }
 }

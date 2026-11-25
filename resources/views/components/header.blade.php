@@ -67,10 +67,15 @@
                 class="flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-gray-100 dark:hover:bg-gray-800">
                 <div class="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-100 dark:bg-brand-500/15">
 
-                    @if ($isCustomer && !empty($account->photo))
-                        <img src="{{ Storage::disk('public')->url($account->photo) }}" alt="{{ $displayName }}"
+                    @if (!empty($account->photo))
+                        <img src="{{ asset('storage/' . $account->photo) }}" alt="{{ $displayName }}"
                             class="h-full w-full object-cover"
                             onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+
+                        <div
+                            class="hidden h-full w-full items-center justify-center text-sm font-semibold text-brand-600 dark:text-brand-400">
+                            {{ $avatar ?: 'U' }}
+                        </div>
                     @else
                         <div
                             class="flex h-full w-full items-center justify-center text-sm font-semibold text-brand-600 dark:text-brand-400">

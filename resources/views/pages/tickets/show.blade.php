@@ -39,7 +39,7 @@
                     class="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
                     <div class="flex flex-wrap items-center gap-3">
                         <h2 class="text-base font-semibold text-gray-800 dark:text-white">
-                            #TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}
+                            #{{ $ticket->ticket_code }}
                         </h2>
 
                         <span class="inline-flex rounded-lg px-3 py-1.5 text-xs font-medium {{ $statusClass }}">
@@ -320,30 +320,40 @@
                         </form>
                     </details>
 
+
                     <details class="group" open>
                         <summary
-                            class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-gray-600 dark:text-gray-300">
+                            class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-200">
                             <span class="flex items-center gap-2">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 Change History
+                                <span
+                                    class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                    {{ $ticket->activities->where('activity_type', '!=', 'Note Added')->count() }}
+                                </span>
                             </span>
 
-                            <svg class="h-4 w-4 transition group-open:rotate-180" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="h-4 w-4 text-gray-400 transition-transform duration-200 group-open:rotate-180"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </summary>
 
-                        <div class="mt-5 space-y-0">
+                        <div class="mt-5">
                             @forelse ($ticket->activities->where('activity_type', '!=', 'Note Added')->sortBy('id') as $activity)
-                                <div class="relative flex gap-4 pb-6 last:pb-0">
+                                <div class="relative flex gap-4 pb-6">
                                     <div class="relative flex w-7 shrink-0 justify-center">
                                         <span
-                                            class="absolute top-1 h-3 w-3 rounded-full bg-blue-400 ring-4 ring-blue-50 dark:ring-blue-500/10"></span>
+                                            class="relative z-10 mt-1 h-3 w-3 rounded-full ring-4
+                        {{ $activity->activity_type === 'Photo Uploaded'
+                            ? 'bg-green-500 ring-green-50 dark:ring-green-500/10'
+                            : 'bg-blue-500 ring-blue-50 dark:ring-blue-500/10' }}">
+                                        </span>
 
                                         @unless ($loop->last)
                                             <span class="absolute top-4 h-full w-px bg-gray-200 dark:bg-gray-700"></span>
@@ -351,26 +361,76 @@
                                     </div>
 
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-sm text-gray-600 dark:text-gray-300">
-                                            <span class="font-semibold text-gray-800 dark:text-white">
+                                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                            <span class="text-sm font-semibold text-gray-800 dark:text-white">
                                                 {{ $activity->performed_by ?? 'Administrator' }}
                                             </span>
-                                            ·
-                                        <p class="whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">
+
+                                            <span class="text-xs text-gray-400">·</span>
+
+                                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                {{ $activity->activity_type }}
+                                            </span>
+                                        </div>
+
+                                        <p
+                                            class="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                                             {{ $activity->description }}
                                         </p>
-                                        </p>
+                                        
+
+                                        @if ($activity->activity_type === 'Photos Uploaded' && $activity->photos->isNotEmpty())
+                                            <div class="mt-3 flex flex-wrap gap-3">
+                                                @foreach ($activity->photos as $photo)
+                                                    <button type="button"
+                                                        onclick="openTicketPhoto(@js(asset('storage/' . $photo->photo_path)))"
+                                                        class="group overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                                                        <img src="{{ asset('storage/' . $photo->photo_path) }}"
+                                                            alt="Ticket Photo"
+                                                            class="h-24 w-24 object-cover transition duration-200 group-hover:scale-105">
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @endif
 
                                         <p class="mt-2 text-xs text-gray-400">
-                                            {{ $activity->created_at?->format('Y-m-d H:i:s') }}
+                                            {{ $activity->created_at?->format('d M Y, H:i') }}
                                         </p>
                                     </div>
                                 </div>
                             @empty
-                                <p class="text-sm text-gray-400">No change history available.</p>
+                                <div
+                                    class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
+                                    <svg class="mx-auto h-8 w-8 text-gray-300 dark:text-gray-600" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-400">No change history available.</p>
+                                </div>
                             @endforelse
                         </div>
                     </details>
+
+                    <div id="ticketPhotoModal"
+                        class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 p-4"
+                        onclick="closeTicketPhoto()">
+
+                        <div class="relative max-h-[90vh] max-w-5xl" onclick="event.stopPropagation()">
+
+                            <button type="button" onclick="closeTicketPhoto()"
+                                class="absolute -right-3 -top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-700 shadow-lg transition hover:bg-gray-200">
+
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            <img id="ticketPhotoPreview" src="" alt="Ticket Photo Preview"
+                                class="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -383,7 +443,8 @@
                     <h3 class="font-semibold text-gray-800 dark:text-white">Handling</h3>
                 </div>
 
-                <form action="{{ route('tickets.updateHandling', $ticket->id) }}" method="POST" class="space-y-4 p-5">
+                <form action="{{ route('tickets.updateHandling', $ticket->id) }}" method="POST"
+                    enctype="multipart/form-data" class="space-y-4 p-5">
                     @csrf
                     @method('PATCH')
 
@@ -435,6 +496,115 @@
                                 Back to Normal
                             </button>
                         </div>
+                    </div>
+
+                    <div class="border-y border-gray-200 py-4 dark:border-gray-800">
+                        <div>
+                            <label for="coordinates"
+                                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Coordinates
+                            </label>
+
+                            <input type="text" id="coordinates" name="coordinates"
+                                value="{{ old(
+                                    'coordinates',
+                                    $ticket->latitude && $ticket->longitude ? $ticket->latitude . ', ' . $ticket->longitude : '',
+                                ) }}"
+                                placeholder="Example: 6.483694°S, 106.472572°E"
+                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+
+                            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                Enter latitude and longitude separated by a comma.
+                            </p>
+
+                            @error('coordinates')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @if ($ticket->latitude && $ticket->longitude)
+                            <div class="mt-4">
+                                <p class="text-xs text-gray-400">Location Point</p>
+
+                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-200">
+                                    {{ $ticket->latitude }}, {{ $ticket->longitude }}
+                                </p>
+
+                                <a href="https://www.google.com/maps?q={{ $ticket->latitude }},{{ $ticket->longitude }}"
+                                    target="_blank" rel="noopener noreferrer"
+                                    class="mt-2 inline-flex text-sm font-medium text-blue-600 hover:underline">
+                                    Open in Google Maps
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="border-gray-200 py-5 dark:border-gray-800">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Ticket Photos
+                            </label>
+
+                            <span class="text-xs text-gray-400">Optional</span>
+                        </div>
+
+                        <label for="ticketPhotos"
+                            class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-7 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:border-gray-700 dark:bg-gray-900/50 dark:hover:border-blue-500 dark:hover:bg-blue-500/5">
+
+                            <div
+                                class="flex h-11 w-11 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm dark:bg-gray-800 dark:text-gray-300">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 16V4m0 0L8 8m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" />
+                                </svg>
+                            </div>
+
+                            <p class="mt-3 text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Click to upload photos
+                            </p>
+                            <p class="mt-1 text-xs text-gray-400">
+                                JPG, JPEG, PNG or WEBP
+                            </p>
+                            <p class="mt-1 text-xs text-gray-400">
+                                Maximum 10 photos, 5 MB each
+                            </p>
+
+                            <input type="file" id="ticketPhotos" name="photos[]"
+                                accept="image/jpeg,image/png,image/webp" multiple class="hidden">
+                        </label>
+
+                        <div id="ticketPhotoPreviewList" class="mt-4 hidden">
+                            <div class="mb-3 flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Selected Photos
+                                </p>
+
+                                <button type="button" id="clearTicketPhotos"
+                                    class="text-xs font-medium text-red-600 hover:text-red-700">
+                                    Clear All
+                                </button>
+                            </div>
+
+                            <div id="ticketPhotoPreviewItems"
+                                class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"></div>
+                        </div>
+
+                        <p id="ticketPhotoError" class="mt-2 hidden text-sm text-red-600"></p>
+
+                        <p id="ticketPhotoError" class="mt-2 hidden text-xs text-red-500"></p>
+
+                        @error('photos')
+                            <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+
+                        @error('photos.*')
+                            <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <details class="group border-y border-gray-200 py-4 dark:border-gray-800">
@@ -554,7 +724,7 @@
 
             <div
                 class="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
-                <div class="grid grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                     <div>
                         <p class="text-xs text-gray-400">Reported At (WIB)</p>
@@ -564,9 +734,16 @@
                     </div>
 
                     <div>
+                        <p class="text-xs text-gray-400">Issue Started At (WIB)</p>
+                        <p class="mt-1 text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {{ $ticket->incident_started_at?->format('Y-m-d H:i:s') ?? '-' }}
+                        </p>
+                    </div>
+
+                    <div>
                         <p class="text-xs text-gray-400">Completed At (WIB)</p>
                         <p class="mt-1 text-sm font-medium text-gray-700 dark:text-gray-200">
-                            {{ $ticket->ticket_status === 'Completed' ? $ticket->updated_at?->format('Y-m-d H:i:s') ?? '-' : 'Not completed' }}
+                            {{ $ticket->resolved_at?->format('Y-m-d H:i:s') ?? 'Not completed' }}
                         </p>
                     </div>
 
@@ -586,7 +763,6 @@
 
                     <div>
                         <p class="text-xs text-gray-400">Ticket Priority</p>
-
                         <p class="mt-1">
                             <span class="inline-flex rounded-lg px-3 py-1.5 text-xs font-semibold {{ $priorityClass }}">
                                 {{ $ticket->priority ?? 'Medium' }}
@@ -635,5 +811,184 @@
                 }
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('ticketPhotos');
+            const previewList = document.getElementById('ticketPhotoPreviewList');
+            const previewItems = document.getElementById('ticketPhotoPreviewItems');
+            const errorMessage = document.getElementById('ticketPhotoError');
+
+            if (!input || !previewList || !previewItems) return;
+
+            let selectedFiles = new DataTransfer();
+
+            function showError(message = '') {
+                if (errorMessage) {
+                    errorMessage.textContent = message;
+                    errorMessage.classList.toggle('hidden', !message);
+                }
+            }
+
+            function renderPreview() {
+                previewItems.innerHTML = '';
+
+                const files = Array.from(selectedFiles.files);
+
+                previewList.classList.toggle('hidden', files.length === 0);
+
+                files.forEach((file, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative group';
+
+                    const image = document.createElement('img');
+                    image.src = URL.createObjectURL(file);
+                    image.alt = file.name;
+                    image.className =
+                        'h-32 w-full rounded-xl border border-gray-200 object-cover dark:border-gray-700';
+
+                    image.onload = () => URL.revokeObjectURL(image.src);
+
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.innerHTML = '&times;';
+                    removeButton.className =
+                        'absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-lg text-white shadow hover:bg-red-700';
+
+                    removeButton.addEventListener('click', function() {
+                        const updatedFiles = new DataTransfer();
+
+                        files.forEach((item, itemIndex) => {
+                            if (itemIndex !== index) {
+                                updatedFiles.items.add(item);
+                            }
+                        });
+
+                        selectedFiles = updatedFiles;
+                        input.files = selectedFiles.files;
+
+                        renderPreview();
+                        showError();
+                    });
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.className =
+                        'mt-2 truncate text-xs text-gray-600 dark:text-gray-400';
+
+                    wrapper.appendChild(image);
+                    wrapper.appendChild(removeButton);
+                    wrapper.appendChild(fileName);
+
+                    previewItems.appendChild(wrapper);
+                });
+            }
+
+            input.addEventListener('change', function() {
+                const newFiles = Array.from(this.files);
+                const currentFiles = Array.from(selectedFiles.files);
+
+                const combinedFiles = [...currentFiles];
+
+                newFiles.forEach(file => {
+                    const alreadyExists = combinedFiles.some(existing =>
+                        existing.name === file.name &&
+                        existing.size === file.size &&
+                        existing.lastModified === file.lastModified
+                    );
+
+                    if (!alreadyExists) {
+                        combinedFiles.push(file);
+                    }
+                });
+
+                if (combinedFiles.length > 10) {
+                    showError('Maksimal 10 foto yang dapat dipilih.');
+                    input.files = selectedFiles.files;
+                    return;
+                }
+
+                const invalidFile = combinedFiles.find(file =>
+                    !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+                );
+
+                if (invalidFile) {
+                    showError('Format foto harus JPG, JPEG, PNG, atau WEBP.');
+                    input.files = selectedFiles.files;
+                    return;
+                }
+
+                const oversizedFile = combinedFiles.find(file => file.size > 5 * 1024 * 1024);
+
+                if (oversizedFile) {
+                    showError('Ukuran setiap foto maksimal 5 MB.');
+                    input.files = selectedFiles.files;
+                    return;
+                }
+
+                selectedFiles = new DataTransfer();
+
+                combinedFiles.forEach(file => {
+                    selectedFiles.items.add(file);
+                });
+
+                input.files = selectedFiles.files;
+
+                showError();
+                renderPreview();
+            });
+
+            const clearButton = document.getElementById('clearTicketPhotos');
+
+            if (clearButton) {
+                clearButton.addEventListener('click', function() {
+                    selectedFiles = new DataTransfer();
+                    input.files = selectedFiles.files;
+
+                    showError();
+                    renderPreview();
+                });
+            }
+        });
+
+        function openTicketPhoto(imageUrl) {
+            const modal = document.getElementById('ticketPhotoModal');
+            const image = document.getElementById('ticketPhotoPreview');
+
+            image.src = imageUrl;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTicketPhoto() {
+            const modal = document.getElementById('ticketPhotoModal');
+            const image = document.getElementById('ticketPhotoPreview');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            image.src = '';
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTicketPhoto();
+            }
+        });
     </script>
+
+    <div id="ticketPhotoModal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 p-4"
+        onclick="closeTicketPhoto()">
+
+        <button type="button" onclick="closeTicketPhoto()"
+            class="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <img id="ticketPhotoPreview" src="" alt="Ticket Photo Preview" onclick="event.stopPropagation()"
+            class="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl">
+    </div>
+
 @endsection

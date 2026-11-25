@@ -113,15 +113,12 @@
                                         </a>
 
                                         <form action="{{ route('categories.destroy', $category->id) }}" method="POST"
-                                            class="delete-technician-form"
-                                            onsubmit="return confirm('Are you sure you want to delete this category?')">
-
+                                            class="delete-category-form" data-name="{{ $category->category_name }}">
                                             @csrf
                                             @method('DELETE')
 
-                                            <button type="button" onclick="openDeleteModal(this)" title="Delete Technician"
+                                            <button type="button" onclick="openDeleteModal(this)" title="Delete Category"
                                                 class="group flex h-9 w-9 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 transition duration-200 hover:border-red-200 hover:bg-red-500 hover:text-white dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white">
-
                                                 <svg class="h-4 w-4 transition-transform duration-200 group-hover:scale-110"
                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -169,12 +166,12 @@
 
             <div class="text-center">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
-                    Delete Technician?
+                    Delete Category?
                 </h3>
 
                 <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
                     Are you sure you want to delete
-                    <span id="deleteTechnicianName" class="font-semibold text-gray-800 dark:text-white"></span>?
+                    <span id="deleteCategoryName" class="font-semibold text-gray-800 dark:text-white"></span>?
                     This action cannot be undone.
                 </p>
             </div>
@@ -198,9 +195,10 @@
         function openDeleteModal(button) {
             deleteForm = button.closest('form');
 
-            const technicianName = deleteForm.dataset.name;
+            const categoryName = deleteForm.dataset.name;
 
-            document.getElementById('deleteTechnicianName').textContent = technicianName;
+            document.getElementById('deleteCategoryName').textContent =
+                categoryName || 'this category';
 
             const modal = document.getElementById('deleteModal');
             const content = document.getElementById('deleteModalContent');

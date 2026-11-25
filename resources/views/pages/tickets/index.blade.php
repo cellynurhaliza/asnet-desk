@@ -23,39 +23,135 @@
         <div
             class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-950">
 
-            <div class="border-b border-gray-200 p-5 dark:border-gray-800">
-                <form action="{{ route('tickets.index') }}" method="GET"
-                    class="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div class="border-b border-gray-200 p-5 dark:border-gray-800 space-y-6">
 
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Search ticket, customer, technician..."
-                        class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 lg:max-w-md dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                <div>
 
-                    <select name="status" onchange="this.form.submit()"
-                        class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-500 lg:w-56 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <form action="{{ route('tickets.export') }}" method="GET"
+                        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:items-end">
 
-                        <option value="">-- Select Status --</option>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Customer
+                            </label>
 
-                        @foreach ($statuses as $status)
-                            <option value="{{ $status }}" @selected(request('status') === $status)>
-                                {{ $status }}
-                            </option>
-                        @endforeach
-                    </select>
+                            <select name="customer_id" id="exportCustomer"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
 
-                    <button type="submit"
-                        class="rounded-lg bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
-                        Search
-                    </button>
+                                <option value="">-- Select Customer --</option>
 
-                    @if (request()->filled('search') || request()->filled('status'))
-                        <a href="{{ route('tickets.index') }}"
-                            class="rounded-lg border border-gray-200 px-5 py-2.5 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                            Reset
-                        </a>
-                    @endif
+                                @foreach ($customers as $customer)
+                                    <option value="{{ $customer->id }}" @selected(request('customer_id') == $customer->id)>
+                                        {{ $customer->username }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                </form>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Export Month
+                            </label>
+
+                            <select name="month"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                <option value="all">Full Year</option>
+                                @foreach ([
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
+            4 => 'April',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
+            9 => 'September',
+            10 => 'October',
+            11 => 'November',
+            12 => 'December',
+        ] as $number => $month)
+                                    <option value="{{ $number }}" @selected($number == now()->month)>
+                                        {{ $month }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Year
+                            </label>
+
+                            <select name="year"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                @foreach (range(2023, now()->year + 5) as $year)
+                                    <option value="{{ $year }}" @selected($year == now()->year)>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                class="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-green-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 10v6m0 0 3-3m-3 3-3-3m8 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z" />
+                                </svg>
+                                Export Excel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="border-t border-gray-100 dark:border-gray-800"></div>
+
+                <div>
+                    <form action="{{ route('tickets.index') }}" method="GET"
+                        class="flex flex-col gap-3 sm:flex-row sm:items-end">
+
+                        <div class="w-full sm:max-w-xs">
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Search Tickets
+                            </label>
+
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Search ticket..."
+                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        </div>
+
+                        <div class="w-full sm:w-56">
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Status
+                            </label>
+
+                            <select name="status"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                <option value="">-- Select Status --</option>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status }}" @selected(request('status') === $status)>
+                                        {{ $status }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="rounded-lg bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                                Search
+                            </button>
+
+                            @if (request()->filled('search') || request()->filled('status'))
+                                <a href="{{ route('tickets.index') }}"
+                                    class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
@@ -91,7 +187,7 @@
                                         {{ $ticket->name }}
                                     </p>
                                     <p class="mt-1 text-xs text-gray-400">
-                                        #TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}
+                                        #{{ $ticket->ticket_code }}
                                     </p>
                                     <p class="mt-2 text-xs text-gray-400">
                                         {{ $ticket->reporting_time?->format('d M Y, H:i') ?? '-' }}
@@ -212,16 +308,18 @@
                                                 class="group flex h-9 w-9 items-center justify-center rounded-lg border border-purple-100 bg-purple-50 text-purple-600 transition hover:border-purple-200 hover:bg-purple-600 hover:text-white dark:border-purple-500/20 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500 dark:hover:text-white">
                                                 <svg class="h-4 w-4 transition-transform group-hover:scale-110"
                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="1.8"
                                                         d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
                                                     <circle cx="12" cy="12" r="2.5" stroke-width="1.8" />
                                                 </svg>
                                             </a>
                                             <form action="{{ route('tickets.destroy', $ticket->id) }}" method="POST"
-                                                data-name="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }} - {{ $ticket->name }}">
+                                                data-name="#{{ $ticket->ticket_code }} - {{ $ticket->name }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" onclick="openDeleteModal(this)" title="Delete Ticket"
+                                                <button type="button" onclick="openDeleteModal(this)"
+                                                    title="Delete Ticket"
                                                     class="group flex h-9 w-9 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white">
                                                     <svg class="h-4 w-4 transition-transform group-hover:scale-110"
                                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,6 +430,22 @@
             if (deleteForm) {
                 deleteForm.submit();
             }
+        }
+
+        const exportCustomer = document.getElementById('exportCustomer');
+
+        if (exportCustomer) {
+            exportCustomer.addEventListener('change', function() {
+                const params = new URLSearchParams(window.location.search);
+
+                if (this.value) {
+                    params.set('customer_id', this.value);
+                } else {
+                    params.delete('customer_id');
+                }
+
+                window.location.href = `{{ route('tickets.index') }}?${params.toString()}`;
+            });
         }
     </script>
 @endsection

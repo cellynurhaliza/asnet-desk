@@ -54,11 +54,11 @@ class CustomerPortalController extends Controller
             ],
         ];
 
-        $recentTickets = Ticket::with([
-            'category',
-            'technicians',
-        ])
-            ->where('customer_id', $customerId)
+        $customer = auth('customer')->user();
+
+        $recentTickets = Ticket::with(['category', 'technicians'])
+            ->where('customer_id', $customer->id)
+            ->where('ticket_status', '!=', 'Completed')
             ->latest()
             ->paginate(5);
 
@@ -142,6 +142,11 @@ class CustomerPortalController extends Controller
                 Rule::in(['Urgent', 'High', 'Medium', 'Low']),
             ],
             'complaint' => ['required', 'string'],
+            'incident_started_at' => [
+                'nullable',
+                'date',
+                'before_or_equal:now',
+            ],
         ], [
             'name.required' => 'Ticket name is required.',
             'category_id.required' => 'Please select a category.',
@@ -149,11 +154,26 @@ class CustomerPortalController extends Controller
             'priority.required' => 'Please select ticket priority.',
             'priority.in' => 'Selected ticket priority is invalid.',
             'complaint.required' => 'Complaint details are required.',
+            'incident_started_at.before_or_equal' => 'Issue Started cannot be in the future.',
         ]);
 
         $customer = Auth::guard('customer')->user();
 
         DB::transaction(function () use ($validated, $customer) {
+
+            $reportingTime = now();
+
+            $incidentStartedAt = !empty($validated['incident_started_at'])
+                ? \Illuminate\Support\Carbon::parse($validated['incident_started_at'])
+                : $reportingTime;
+                
+            $isIssueStartedEarlier = $incidentStartedAt->format('Y-m-d H:i')
+                !== $reportingTime->format('Y-m-d H:i');
+
+            $priority = $isIssueStartedEarlier
+                ? 'High'
+                : $validated['priority'];
+
             $ticket = Ticket::create([
                 'customer_id' => $customer->id,
                 'kategori_id' => $validated['category_id'],
@@ -161,14 +181,15 @@ class CustomerPortalController extends Controller
                 'name' => $validated['name'],
                 'complaint' => $validated['complaint'],
                 'action' => null,
-                'reporting_time' => now(),
+                'reporting_time' => $reportingTime,
                 'ticket_status' => 'New',
-                'priority' => $validated['priority'],
+                'priority' => $priority,
 
                 'customer_confirmation_required' => true,
                 'customer_confirmation_status' => null,
                 'customer_resolution_note' => null,
                 'customer_confirmed_at' => null,
+                'incident_started_at' => $incidentStartedAt,
             ]);
 
             TicketActivity::create([
@@ -187,9 +208,11 @@ class CustomerPortalController extends Controller
     public function showTicket($ticket)
     {
         $ticket = Ticket::with([
+            'customer',
             'category',
+            'technician',
             'technicians',
-            'activities',
+            'activities.photos',
         ])
             ->where('customer_id', Auth::guard('customer')->id())
             ->findOrFail($ticket);
@@ -291,7 +314,8 @@ class CustomerPortalController extends Controller
             $customer,
             $validated
         ) {
-            $ticket = Ticket::where('customer_id', $customer->id)
+            $ticket = Ticket::where('id', $ticketId)
+                ->where('customer_id', $customer->id)
                 ->where('customer_confirmation_required', true)
                 ->where('ticket_status', 'Awaiting Customer')
                 ->where('customer_confirmation_status', 'Pending')

@@ -112,6 +112,15 @@
 
                 <div>
                     <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                        Issue Started
+                    </p>
+                    <p class="mt-2 text-sm font-semibold text-gray-800 dark:text-white">
+                        {{ $ticket->incident_started_at?->format('d M Y, H:i') ?? '-' }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
                         Ticket Priority
                     </p>
                     <div class="mt-2">
@@ -363,64 +372,131 @@
 
         <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
 
-            <div class="mb-5">
-                <h4 class="font-semibold text-gray-800 dark:text-white">
-                    Activity History
-                </h4>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Track the progress and updates of your ticket.
-                </p>
-            </div>
-
-            @if ($ticket->activities->isNotEmpty())
-                <div class="space-y-5">
-                    @foreach ($ticket->activities->sortByDesc('created_at') as $activity)
-                        <div class="relative flex gap-4">
-
-                            <div class="flex flex-col items-center">
-                                <div
-                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/10">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div class="min-w-0 flex-1 pb-4">
-                                <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                                    <h5 class="text-sm font-semibold text-gray-800 dark:text-white">
-                                        {{ $activity->activity_type }}
-                                    </h5>
-
-                                    <span class="text-xs text-gray-400">
-                                        {{ $activity->created_at?->format('d M Y, H:i') ?? '-' }}
-                                    </span>
-                                </div>
-
-                                <p class="mt-1 whitespace-pre-line text-sm leading-6 text-gray-600 dark:text-gray-300">
-                                    {{ $activity->description }}
-                                </p>
-
-                                @if ($activity->performed_by)
-                                    <p class="mt-2 text-xs text-gray-400">
-                                        By {{ $activity->performed_by }}
-                                    </p>
-                                @endif
-                            </div>
-
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="py-8 text-center">
-                    <p class="text-sm text-gray-400">
-                        No activity history available.
+            <div class="mb-5 flex items-center justify-between">
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-white">
+                        Activity History
+                    </h4>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Track the progress and updates of your ticket.
                     </p>
                 </div>
-            @endif
+
+                <span
+                    class="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                    {{ $ticket->activities->where('activity_type', '!=', 'Note Added')->count() }} Activities
+                </span>
+            </div>
+
+            <div class="mt-5">
+                @forelse ($ticket->activities->where('activity_type', '!=', 'Note Added')->sortBy('id') as $activity)
+                    <div class="relative flex gap-4 pb-6 last:pb-0">
+
+                        <div class="relative flex w-7 shrink-0 justify-center">
+                            <span
+                                class="relative z-10 mt-1 h-3 w-3 rounded-full ring-4
+                        {{ in_array($activity->activity_type, ['Photos Uploaded', 'Photo Uploaded'])
+                            ? 'bg-blue-500 ring-green-50 dark:ring-green-500/10'
+                            : 'bg-blue-500 ring-blue-50 dark:ring-blue-500/10' }}">
+                            </span>
+
+                            @unless ($loop->last)
+                                <span class="absolute top-4 h-full w-px bg-gray-200 dark:bg-gray-700"></span>
+                            @endunless
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <span class="text-sm font-semibold text-gray-800 dark:text-white">
+                                    {{ $activity->performed_by ?? 'Administrator' }}
+                                </span>
+
+                                <span class="text-xs text-gray-400">·</span>
+
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                    {{ $activity->activity_type }}
+                                </span>
+                            </div>
+
+                            <p
+                                class="mt-1 whitespace-pre-line break-words text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                {{ $activity->description }}
+                            </p>
+
+                            @if (in_array($activity->activity_type, ['Photos Uploaded', 'Photo Uploaded']) && $activity->photos->isNotEmpty())
+                                <div class="mt-3 flex flex-wrap gap-3">
+                                    @foreach ($activity->photos as $photo)
+                                        <button type="button" onclick="openTicketPhoto(@js(asset('storage/' . $photo->photo_path)))"
+                                            class="group overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                                            <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="Ticket Photo"
+                                                class="h-24 w-24 object-cover transition duration-200 group-hover:scale-105">
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            <p class="mt-2 text-xs text-gray-400">
+                                {{ $activity->created_at?->format('d M Y, H:i') ?? '-' }}
+                            </p>
+                        </div>
+
+                    </div>
+                @empty
+                    <div
+                        class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
+                        <p class="text-sm text-gray-400">
+                            No activity history available.
+                        </p>
+                    </div>
+                @endforelse
+            </div>
 
         </div>
+
+        <div id="ticketPhotoModal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 p-4"
+            onclick="closeTicketPhoto()">
+
+            <div class="relative max-h-[90vh] max-w-5xl" onclick="event.stopPropagation()">
+                <button type="button" onclick="closeTicketPhoto()"
+                    class="absolute -right-3 -top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-700 shadow-lg transition hover:bg-gray-200">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <img id="ticketPhotoPreview" src="" alt="Ticket Photo Preview"
+                    class="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl">
+            </div>
+        </div>
+
+        <script>
+            function openTicketPhoto(imageUrl) {
+                const modal = document.getElementById('ticketPhotoModal');
+                const image = document.getElementById('ticketPhotoPreview');
+
+                image.src = imageUrl;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeTicketPhoto() {
+                const modal = document.getElementById('ticketPhotoModal');
+                const image = document.getElementById('ticketPhotoPreview');
+
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                image.src = '';
+                document.body.style.overflow = '';
+            }
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeTicketPhoto();
+                }
+            });
+        </script>
+
 
     </div>
 @endsection

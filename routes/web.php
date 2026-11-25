@@ -34,6 +34,9 @@ Route::middleware(['auth:web', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    Route::get('/tickets/export', [TicketController::class, 'export'])
+        ->name('tickets.export');
+
     Route::resource('tickets', TicketController::class);
 
     Route::patch('/tickets/{ticket}/handling', [TicketController::class, 'updateHandling'])
@@ -41,6 +44,9 @@ Route::middleware(['auth:web', 'admin'])->group(function () {
 
     Route::post('/tickets/{ticket}/notes', [TicketController::class, 'addNote'])
         ->name('tickets.addNote');
+
+    Route::get('/tickets/customer-suggestions', [TicketController::class, 'customerSuggestions'])
+        ->name('tickets.customerSuggestions');
 
     Route::resource('categories', CategoryController::class);
 
